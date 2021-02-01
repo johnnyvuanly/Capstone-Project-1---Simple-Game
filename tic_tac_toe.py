@@ -1,9 +1,9 @@
 ''' https://www.youtube.com/watch?v=8eHpXLDhi6w&ab_channel=JuniLearningUser video used to help create the project.
-will play against the computer and will always play X while the computer takes O. The code will check if anyone has
+User will play against the computer and will always play X while the computer takes O. The code will check if anyone has
  gotten 3 in a row. Also needs to check that no two X's or O's share the same spot'''
 
 import turtle # turtle is a pre-installed Python library that enables users to create pictures and shapes by providing a virtual canvas
-import math # allows us to use math.pi to draw circles for our pieces
+import math # allows us to use math.pi to draw circles for our playing pieces
 
 # This function draws the grid the game will be played on 
 def drawBoard(): 
@@ -73,22 +73,85 @@ def drawO(x, y):
     # Update the screen
     screen.update()
 
-# Create turtle
-drawer = turtle.Turtle() 
+# This function activates all the event listeners
+def activate(functions): # Assigns all the functions in the list to different numerical keys
+    for i in range(9):
+        screen.onkey(functions[i], str(i + 1)) # This assigns the i'th function in the list to the i + 1 key
+
+# This function activates all the event listeners
+def deactivate():
+    for i in range(9):
+        screen.onkey(None, str()) # Assigns all the numerical keys to no functions
 
 # This function will try to add an x to the inputted location 
 def addX(row, column):
-    # Draw an x in the correct spot
-    drawX() # Call drawX() function
+    # Clear announcer everytime they try to add an "x"
+    announcer.clear()
+    # Before everything else, check if the space they want to add to is full
+    if board[row][column] == "x" or board[row][column] == "o":
+        # Tell them they cannot take that spot 
+        announcer.write("That spot is taken!", font = ("Arial", 36))
+        screen.update()
+    else:
+        # Draw an x in the correct spot
+        drawX(-200 + 200 * column, 200 - 200 * row) # Call drawX() function
+
+        # Add an x to the computer's board
+        board[row][column] = "x"
+
+# Define functions for the event listeneres
+def squareOne():
+    addX(0, 0)
+def squareTwo():
+    addX(0, 1)
+def squareThree():
+    addX(0, 2)
+def squareFour():
+    addX(1, 0)
+def squareFive():
+    addX(1, 1)
+def squareSix():
+    addX(1, 2)
+def squareSeven():
+    addX(2, 0)
+def squareEight():
+    addX(2, 1)
+def squareNine():
+    addX(2, 2)
+
+# Create a list of event listener functions 
+functions = [squareOne, squareTwo, squareThree, squareFour, squareFive, squareSix, squareSeven, squareEight, squareNine]
+
+# Create turtle
+drawer = turtle.Turtle() 
+# Will write messages to the user
+announcer = turtle.Turtle()
 
 drawer.pensize(10) # Increase pen size
 drawer.ht() # Hide turtle using the ht() -> hideturtle() function
- 
-screen = turtle.Screen() # Create screen
+
+announcer.penup()
+announcer.ht()
+announcer.goto(-200, 0)
+announcer.color("red")
+
+# Create screen
+screen = turtle.Screen() 
 screen.tracer(0) # .tracer(0) is how to turn the animations off
 
-drawBoard() # draw the board
+# Draw the board
+drawBoard() 
 
-drawO(0, 0)
+# Create the board
+board = []
+for i in range(3): # each row is its own list 
+    row = []
+    for j in range(3):  
+        row.append(" ") # Adds three empty spaces to row
+    board.append(row) # This will make a grid filled with spaces, computer will read spaces as empty slots
+
+# Call your activate function, activates the event listeners
+activate(functions)
+screen.listen()
 
 screen.exitonclick() # Included to fix this bug where the screen flashes and closes on VSCode
