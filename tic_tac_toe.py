@@ -73,6 +73,81 @@ def drawO(x, y):
     # Update the screen
     screen.update()
 
+# This function will check if the onputted player has won
+def checkWon(letter):
+    # Check if there are three in a row horizontally 
+    for i in range(3):
+        if board[i][0] == board[i][1] and board[i][1] == board[i][2] and board[i][0] == letter:
+            return True
+    
+        if board[0][i] == board[1][i] and board[1][i] == board[2][i] and board[0][i] == letter:
+            return True
+
+    # Check if there are three in a row diagonally down
+    if board[0][0] ==  board[1][1] and board[1][1] == board[2][2] and board[0][0] == letter:
+        return True
+
+    # Check if there are three in a row diagonally up 
+    if board[0][2] == board[1][1] and board[1][1] == board[2][0] and board[0][2] == letter:
+        return True
+
+    # If at this point, the given letter has not won 
+    return False
+
+# This function checks if the game is a tie 
+def checkDraw():
+    # Count the number of x's on the board
+    count = 0
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == "x": # If the space we are looking at is an x then increase count by 1
+                coount += 1
+
+    if count > 3:
+        return True
+    else:
+        return False
+
+# This function will add an o to the board in the best place
+def addO():
+    # Check if any places would result in a win for o
+    for i in range(3):
+        for j in range(3): # Using nested for loops we look a the whole board and checking to see if the space the computer wants is blank
+            if board[i][j] == " ": # If the space is empty
+                board[i][j] = "o" # then add an o
+                if checkWon("o"):
+                    drawO(-200 + 200 * j, 200 - 200 * i)
+                    return # Leave the function with this return
+                board[i][j] = " " # If "o" doesn't win in this spot then change it back to empty
+
+    # Check if there is any place that o should block x
+    for i in range(3):
+        for j in range(3): # Nested for loops to look at each spot on the board again
+            if board[i][j] == " ":
+                board[i][j] = "x"
+                if checkWon("x"):
+                    board[i][j] = "o"
+                    drawO(-200 + 200 * j, 200 - 200 * i)
+                    return
+                board[i][j] = " "
+
+    # Try to place an o in one of the corners
+    for i in range(0, 3, 2):
+        for j in range(0, 3, 2):
+            if board[i][j] == " ":
+                board[i][j] = "o"
+                drawO(-200 + 200 * j, 200 - 200 * i)
+                return
+    
+    # Place an o in any open spot
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == " ":
+                board[i][j] = "o"
+                drawO(-200 + 200 * j, 200 -200 * i)
+                return
+
+
 # This function activates all the event listeners
 def activate(functions): # Assigns all the functions in the list to different numerical keys
     for i in range(9):
@@ -99,7 +174,38 @@ def addX(row, column):
         # Add an x to the computer's board
         board[row][column] = "x"
 
-# Define functions for the event listeneres
+        # Check if that new x made x win
+        if checkWon("x"):
+            announcer.goto(-97, 0) # Have announcer move a bit and then write a message
+            announcer.write("You Won!", font = ("Arial", 36))
+
+            # Update the screen and deactivate the event listeners
+            screen.update()
+            deactivate()
+        else:
+            # If they didn't win, then an o gets added to the board
+            addO()
+
+            # Check if that new o made o win
+            if checkWon("o"):
+                # Tell the player that they lost
+                announcer.goto(-90, 0)
+                announcer.write("You lost!", font = ("Arial", 36))
+
+                # Update the screen and deactivate the evvent listeners
+                screen.update()
+                deactivate()
+            # Check if there is a tie
+            elif checkDraw():
+                # Tell the player they tied with the computer
+                announcer.goto(-90, 0)
+                announcer.write("It's a tie!", font = ("Arial", 36))
+
+                # Update the screen and deactivate the event listeners
+                screen.update()
+                deactivate()
+
+# Define functions for the event listeners
 def squareOne():
     addX(0, 0)
 def squareTwo():
